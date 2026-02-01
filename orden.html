@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0A2230" />
+  <title>Cuida el orden</title>
+
+  <style>
+    :root{
+      --bg0:#061820;
+      --bg1:#0A2230;
+
+      --ink:#EAF2F8;
+      --muted:#8FA4B4;
+
+      --line: rgba(234,242,248,.07);
+      --line2: rgba(234,242,248,.05);
+
+      --accent: rgba(42,125,160,.32);
+      --accentBorder: rgba(42,125,160,.55);
+
+      --gold: rgba(199,168,98,.82);
+
+      --shadow: 0 14px 34px rgba(0,0,0,.28);
+
+      --fallBlack:#000;
+      --fallBorder: rgba(234,242,248,.16);
+
+      --ui: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      --serif: ui-serif, Georgia, "Times New Roman", serif;
+    }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+
+    body{
+      margin:0;
+      font-family: var(--ui);
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(42,125,160,.18), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      color: var(--ink);
+    }
+
+    /* modo caída (solo cuando el día activo tiene caída) */
+    body.fallMode{
+      background:
+        radial-gradient(900px 600px at 30% 10%, rgba(234,242,248,.04), transparent 60%),
+        linear-gradient(180deg, #020304, #000);
+    }
+
+    .shell{
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 14px 14px 88px;
+    }
+
+    /* ===== Header ===== */
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: 12px;
+      padding: 6px 0 8px;
+    }
+
+    h1{
+      margin:0;
+      font-family: var(--serif);
+      font-size: 21px;
+      font-weight: 850;
+      letter-spacing: .45px;
+      line-height: 1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 70vw;
+    }
+
+    .dateText{
+      font-family: var(--serif);
+      font-size: 13px;
+      opacity: .92;
+      text-align:right;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 42vw;
+      padding-top: 2px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      margin-top: 10px;
+    }
+
+    .tab{
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      padding: 9px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      border-radius: 0; /* ángulo recto */
+    }
+    .tab.active{
+      background: var(--accent);
+      border-color: var(--accentBorder);
+    }
+
+    /* ===== Panel “ligero” ===== */
+    .panel{
+      margin-top: 16px;
+      border: 1px solid var(--line2);
+      background: rgba(12, 36, 50, .70);
+      box-shadow: var(--shadow);
+      padding: 12px 12px 4px;
+      border-radius: 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .panelHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap: 12px;
+      padding: 6px 2px 10px;
+      border-bottom: 1px solid rgba(234,242,248,.06);
+    }
+
+    .panelHead h2{
+      margin:0;
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: .2px;
+    }
+
+    .progress{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      white-space:nowrap;
+    }
+
+    .bar{
+      width: 120px;
+      height: 8px;
+      border: 1px solid rgba(234,242,248,.10);
+      background: rgba(234,242,248,.06);
+      overflow:hidden;
+      border-radius: 0;
+    }
+    .barfill{
+      width:0%;
+      height:100%;
+      background: linear-gradient(90deg, rgba(42,125,160,.95), rgba(26,92,121,.65));
+    }
+
+    /* ===== Lista fluida de prácticas ===== */
+    ul.list{
+      list-style:none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .item{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      padding: 14px 4px;
+      border-bottom: 1px solid rgba(234,242,248,.07);
+      background: transparent;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .12s ease, transform .08s ease;
+    }
+    .item:first-child{
+      border-top: 1px solid rgba(234,242,248,.07);
+    }
+    .item:active{
+      background: rgba(234,242,248,.03);
+      transform: scale(.995);
+    }
+
+    .label{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mark{
+      width: 12px;
+      height: 12px;
+      border: 1px solid rgba(234,242,248,.22);
+      background: transparent;
+      flex: 0 0 auto;
+      border-radius: 0;
+    }
+
+    .title{
+      font-size: 14px;
+      font-weight: 720;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    /* Estado visible */
+    .badge{
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: rgba(234,242,248,.72);
+      font-size: 12px;
+      font-weight: 850;
+      white-space:nowrap;
+      flex: 0 0 auto;
+      min-width: 72px;
+      text-align: right;
+    }
+
+    /* Hecho: barra dorada + marcador dorado */
+    .item.done::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 2px;
+      background: rgba(199,168,98,.55);
+    }
+    .item.done .mark{
+      border-color: rgba(199,168,98,.65);
+      background: rgba(199,168,98,.18);
+    }
+
+    /* ===== Filas (Mortificación / Confesión) ===== */
+    .sectionline{
+      padding: 10px 2px 6px;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding: 14px 4px;
+      border-top: 1px solid rgba(234,242,248,.07);
+    }
+
+    .rowLeft{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width: 0;
+    }
+    .rowLeft .k{
+      font-weight: 950;
+      letter-spacing: .15px;
+    }
+    .rowLeft .v{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 780;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .stepper{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex: 0 0 auto;
+    }
+
+    .stepVal{
+      min-width: 34px;
+      text-align:center;
+      font-weight: 950;
+      font-size: 18px;
+      letter-spacing:.3px;
+    }
+
+    /* ===== Botones ===== */
+    .btn{
+      border: 1px solid rgba(234,242,248,.12);
+      background: rgba(234,242,248,.05);
+      color: rgba(234,242,248,.92);
+      padding: 9px 12px;
+      font-weight: 900;
+      font-size: 13px;
+      cursor:pointer;
+      border-radius: 0; /* ángulo recto */
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.primary{
+      background: rgba(42,125,160,.25);
+      border-color: rgba(42,125,160,.45);
+    }
+
+    .btn.danger{
+      background: rgba(127,29,29,.22);
+      border-color: rgba(234,242,248,.10);
+    }
+
+    .dayActions{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      padding: 12px 2px 6px;
+      margin-top: 6px;
+      border-top: 1px solid rgba(234,242,248,.07);
+    }
+
+    /* ===== Calendario (planner móvil) ===== */
+    .calHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 10px 2px 12px;
+      border-bottom: 1px solid rgba(234,242,248,.07);
+    }
+
+    .calTitle{
+      font-family: var(--serif);
+      font-weight: 850;
+      letter-spacing: .2px;
+      text-transform: capitalize;
+    }
+
+    .calNav{
+      display:flex;
+      gap:10px;
+      flex: 0 0 auto;
+    }
+
+    .grid7{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;               /* más aire */
+      margin-top: 12px;
+    }
+
+    .dow{
+      font-size: 11px;
+      color: rgba(234,242,248,.60);
+      text-align:center;
+      padding: 2px 0 6px;
+      font-weight: 850;
+      letter-spacing: .08em;
+    }
+
+    .day{
+      position:relative;
+      border: 1px solid rgba(234,242,248,.06); /* línea más fina */
+      background: rgba(234,242,248,.015);      /* aún más “papel” */
+      min-height: 56px;                         /* más táctil */
+      padding: 7px 7px 10px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      border-radius: 0;
+      transition: background .12s ease, transform .08s ease, border-color .12s ease;
+    }
+    .day:active{
+      transform: scale(.995);
+      background: rgba(234,242,248,.03);
+      border-color: rgba(234,242,248,.10);
+    }
+
+    .day.empty{
+      border-color: transparent;
+      background: transparent;
+      cursor: default;
+    }
+
+    .dayNum{
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,242,248,.88);
+    }
+
+    .dayMeta{
+      position:absolute;
+      right:7px;
+      bottom:7px;
+      font-size: 11px;
+      color: rgba(234,242,248,.58);
+      font-weight: 900;
+      letter-spacing: .01em;
+    }
+
+    /* Confesión: cruz simple dorada */
+    .confCross{
+      position:absolute;
+      right:7px;
+      top:7px;
+      width: 10px;
+      height: 10px;
+      opacity: .95;
+    }
+    .confCross::before,
+    .confCross::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:50%;
+      background: rgba(199,168,98,.85);
+      transform: translate(-50%,-50%);
+    }
+    .confCross::before{ width: 10px; height: 1.6px; }
+    .confCross::after{ width: 1.6px; height: 10px; }
+
+    /* Caída: negro absoluto y sin x/7 ni cruz */
+    .day.fall{
+      background: var(--fallBlack);
+      border-color: var(--fallBorder);
+    }
+    .day.fall .dayNum{ color: rgba(234,242,248,.55); }
+    .day.fall .dayMeta{ display:none; }
+    .day.fall .confCross{ display:none; }
+
+    /* Hoy: contorno sobrio */
+    .day.today{
+      outline: 2px solid rgba(42,125,160,.42);
+      outline-offset: -2px;
+    }
+
+    /* ===== Modal “sheet” ===== */
+    .sheetBack{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      z-index: 60;
+    }
+    .sheetBack.show{ display:block; }
+
+    .sheet{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 10px;
+      width: min(520px, calc(100% - 18px));
+      background: rgba(12,36,50,.94);
+      border: 1px solid rgba(234,242,248,.14);
+      box-shadow: 0 22px 60px rgba(0,0,0,.55);
+      padding: 12px;
+      display:none;
+      z-index: 70;
+      backdrop-filter: blur(12px);
+      border-radius: 0;
+    }
+    .sheet.show{ display:block; }
+
+    .sheetTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 4px 4px 10px;
+      border-bottom: 1px solid rgba(234,242,248,.10);
+    }
+
+    .sheetTitle{
+      font-family: var(--serif);
+      font-weight: 850;
+      font-size: 13px;
+      color: rgba(234,242,248,.95);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      text-transform: capitalize;
+    }
+
+    .closeX{
+      border: 0;
+      background: transparent;
+      color: rgba(234,242,248,.85);
+      font-size: 18px;
+      padding: 8px 10px;
+      cursor:pointer;
+    }
+
+    .sheetBody{
+      padding: 10px 4px 4px;
+    }
+
+    .miniLine{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 10px 10px;
+      border: 1px solid rgba(234,242,248,.10);
+      background: rgba(10,35,48,.28);
+      margin-bottom: 10px;
+      border-radius: 0;
+    }
+
+    .miniLine .k{ font-weight: 950; }
+    .miniLine .v{ color: var(--muted); font-size: 12px; font-weight: 900; }
+
+    /* ===== Bottom bar ===== */
+    .bottombar{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      padding: 10px 12px;
+      background: rgba(6,24,32,.92);
+      border-top: 1px solid rgba(234,242,248,.10);
+      backdrop-filter: blur(10px);
+      display:flex;
+      justify-content:center;
+      z-index: 30;
+    }
+    .bottombar .inner{
+      width: min(520px, 100%);
+      display:flex;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .link{
+      border:0;
+      background:transparent;
+      color: rgba(234,242,248,.86);
+      text-decoration: underline;
+      cursor:pointer;
+      padding: 8px 8px;
+      font-size: 12.5px;
+      font-weight: 850;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ===== Toast (se mantiene para otras acciones, NO para Caída) ===== */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 72px;
+      transform: translateX(-50%);
+      background: rgba(10,35,48,.92);
+      border: 1px solid rgba(234,242,248,.14);
+      padding: 10px 12px;
+      display:none;
+      gap:10px;
+      align-items:center;
+      z-index: 80;
+      max-width: calc(100% - 24px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      border-radius: 0;
+    }
+    .toast.show{ display:flex; }
+    .toast span{
+      font-size: 12.5px;
+      color: rgba(234,242,248,.92);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 62vw;
+      font-weight: 850;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <header>
+      <div style="min-width:0">
+        <h1>Cuida el orden</h1>
+        <div class="tabs" role="tablist" aria-label="Secciones">
+          <button class="tab active" id="tabToday" type="button">Hoy</button>
+          <button class="tab" id="tabCalendar" type="button">Calendario</button>
+        </div>
+      </div>
+      <div class="dateText" id="dateBig">—</div>
+    </header>
+
+    <!-- ===== HOY ===== -->
+    <section id="viewToday">
+      <section class="panel">
+        <div class="panelHead">
+          <h2>Prácticas</h2>
+          <div class="progress">
+            <span id="progressText">0/7</span>
+            <div class="bar"><div class="barfill" id="barFill"></div></div>
+          </div>
+        </div>
+
+        <ul class="list" id="practiceList"></ul>
+
+        <div class="sectionline">
+          <div class="row">
+            <div class="rowLeft">
+              <div class="k">Mortificación</div>
+              <div class="v">No cuenta para 7 prácticas</div>
+            </div>
+            <div class="stepper">
+              <button class="btn" id="mortMinus" type="button" aria-label="Restar">—</button>
+              <div class="stepVal" id="mortValue">0</div>
+              <button class="btn primary" id="mortPlus" type="button" aria-label="Sumar">+</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="rowLeft">
+              <div class="k">Confesión</div>
+              <div class="v" id="confLast">Última: —</div>
+            </div>
+            <button class="btn primary" id="confToggle" type="button">Marcar</button>
+          </div>
+
+          <div class="dayActions">
+            <button class="btn" id="goYesterday" type="button">← Día anterior</button>
+            <button class="btn" id="goToday" type="button" style="display:none;">Volver a hoy</button>
+            <button class="btn danger" id="fallBtn" type="button">Caída</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== CALENDARIO ===== -->
+    <section id="viewCalendar" style="display:none;">
+      <section class="panel" style="padding-bottom:12px">
+        <div class="calHead">
+          <div class="calTitle" id="calTitle">—</div>
+          <div class="calNav">
+            <button class="btn" id="calPrev" type="button">‹</button>
+            <button class="btn" id="calNext" type="button">›</button>
+          </div>
+        </div>
+
+        <div class="grid7" style="margin-top:10px">
+          <div class="dow">L</div><div class="dow">M</div><div class="dow">X</div><div class="dow">J</div><div class="dow">V</div><div class="dow">S</div><div class="dow">D</div>
+        </div>
+
+        <div class="grid7" id="calGrid"></div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Bottom bar -->
+  <div class="bottombar">
+    <div class="inner">
+      <button class="link" id="resetBtn" type="button">Reiniciar</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span id="toastText">—</span>
+    <button class="btn" id="toastUndo" type="button">Deshacer</button>
+  </div>
+
+  <!-- Sheet detalle día -->
+  <div class="sheetBack" id="sheetBack"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheetTop">
+      <div class="sheetTitle" id="sheetTitle">—</div>
+      <button class="closeX" id="sheetClose" type="button">×</button>
+    </div>
+    <div class="sheetBody" id="sheetBody"></div>
+  </div>
+
+  <script>
+    // ===== Config =====
+    const PRACTICES = [
+      { key: "coraza", label: "Coraza" },
+      { key: "eucaristia", label: "Eucaristía" },
+      { key: "rosario", label: "Santo Rosario" },
+      { key: "intimidad", label: "Intimidad" },
+      { key: "lectio", label: "Lectio Divina" },
+      { key: "consagrado", label: "Oraciones del Consagrado" },
+      { key: "lectura", label: "Lectura espiritual" },
+    ];
+
+    const STORAGE_KEY = "cuida_el_orden_final_singlefile_v3";
+    const CUT_HOUR = 2, CUT_MIN = 30;
+
+    // ===== DOM =====
+    const elDateBig = document.getElementById("dateBig");
+
+    const tabToday = document.getElementById("tabToday");
+    const tabCalendar = document.getElementById("tabCalendar");
+    const viewToday = document.getElementById("viewToday");
+    const viewCalendar = document.getElementById("viewCalendar");
+
+    const elList = document.getElementById("practiceList");
+    const elProgressText = document.getElementById("progressText");
+    const elBarFill = document.getElementById("barFill");
+
+    const mortMinus = document.getElementById("mortMinus");
+    const mortPlus = document.getElementById("mortPlus");
+    const mortValue = document.getElementById("mortValue");
+
+    const goYesterday = document.getElementById("goYesterday");
+    const goToday = document.getElementById("goToday");
+    const fallBtn = document.getElementById("fallBtn");
+
+    const confLast = document.getElementById("confLast");
+    const confToggle = document.getElementById("confToggle");
+
+    const resetBtn = document.getElementById("resetBtn");
+
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toastText");
+    const toastUndo = document.getElementById("toastUndo");
+
+    const calTitle = document.getElementById("calTitle");
+    const calPrev = document.getElementById("calPrev");
+    const calNext = document.getElementById("calNext");
+    const calGrid = document.getElementById("calGrid");
+
+    const sheetBack = document.getElementById("sheetBack");
+    const sheet = document.getElementById("sheet");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetBody = document.getElementById("sheetBody");
+    const sheetClose = document.getElementById("sheetClose");
+
+    // ===== Utils =====
+    const pad2 = (n) => String(n).padStart(2, "0");
+    const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    const toMidday = (d) => { const x = new Date(d); x.setHours(12,0,0,0); return x; };
+
+    function practiceDayFor(now){
+      const h = now.getHours();
+      const m = now.getMinutes();
+      const isBeforeCut = (h < CUT_HOUR) || (h === CUT_HOUR && m < CUT_MIN);
+      const d = new Date(now);
+      if (isBeforeCut) d.setDate(d.getDate() - 1);
+      return toMidday(d);
+    }
+
+    function fmtHeaderDate(d){
+      const txt = d.toLocaleDateString("es-ES", { day:"numeric", month:"long", year:"numeric" });
+      return txt.charAt(0).toUpperCase() + txt.slice(1);
+    }
+
+    function fmtMonthTitle(d){
+      const t = d.toLocaleDateString("es-ES", { month:"long", year:"numeric" });
+      return t.charAt(0).toUpperCase() + t.slice(1);
+    }
+
+    function weekdayMon0(d){
+      const js = d.getDay();
+      return (js + 6) % 7;
+    }
+
+    // ===== Storage =====
+    function defaultState(){
+      return {
+        days: {},
+        confessions: {},
+        lastConfessionISO: null
+      };
+    }
+
+    function loadState(){
+      try{
+        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!raw || typeof raw !== "object") return defaultState();
+        if (!raw.days) raw.days = {};
+        if (!raw.confessions) raw.confessions = {};
+        if (!("lastConfessionISO" in raw)) raw.lastConfessionISO = null;
+        return raw;
+      }catch{
+        return defaultState();
+      }
+    }
+
+    let state = loadState();
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    function ensureDay(iso){
+      if (!state.days[iso]){
+        state.days[iso] = {
+          checks: Object.fromEntries(PRACTICES.map(p => [p.key, false])),
+          mort: 0,
+          fall: false,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return state.days[iso];
+    }
+
+    // ===== Toast (con deshacer) =====
+    let toastTimer = null;
+    let undoFn = null;
+
+    function showToast(msg, onUndo){
+      toastText.textContent = msg;
+      undoFn = onUndo || null;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+        undoFn = null;
+      }, 6500);
+    }
+
+    toastUndo.addEventListener("click", () => {
+      if (undoFn) undoFn();
+      toast.classList.remove("show");
+      undoFn = null;
+    });
+
+    // ===== Tabs =====
+    function setTab(which){
+      const isToday = which === "today";
+      tabToday.classList.toggle("active", isToday);
+      tabCalendar.classList.toggle("active", !isToday);
+      viewToday.style.display = isToday ? "" : "none";
+      viewCalendar.style.display = isToday ? "none" : "";
+      if (!isToday) renderCalendar();
+    }
+    tabToday.addEventListener("click", ()=>setTab("today"));
+    tabCalendar.addEventListener("click", ()=>setTab("calendar"));
+
+    // ===== Active day =====
+    let activeDate = practiceDayFor(new Date());
+
+    function setActiveDate(d){
+      activeDate = toMidday(d);
+      render();
+    }
+
+    // ===== Calendar month =====
+    let calMonth = new Date(activeDate);
+    calMonth.setDate(1);
+    calMonth = toMidday(calMonth);
+
+    calPrev.addEventListener("click", () => {
+      const d = new Date(calMonth);
+      d.setMonth(d.getMonth() - 1);
+      d.setDate(1);
+      calMonth = toMidday(d);
+      renderCalendar();
+    });
+
+    calNext.addEventListener("click", () => {
+      const d = new Date(calMonth);
+      d.setMonth(d.getMonth() + 1);
+      d.setDate(1);
+      calMonth = toMidday(d);
+      renderCalendar();
+    });
+
+    // ===== Rendering =====
+    function renderHeader(){
+      elDateBig.textContent = fmtHeaderDate(activeDate);
+
+      const today = practiceDayFor(new Date());
+      const isOnToday = toISODate(activeDate) === toISODate(today);
+      goToday.style.display = isOnToday ? "none" : "";
+
+      const iso = toISODate(activeDate);
+      document.body.classList.toggle("fallMode", !!ensureDay(iso).fall);
+    }
+
+    function renderToday(){
+      const iso = toISODate(activeDate);
+      const day = ensureDay(iso);
+
+      elList.innerHTML = "";
+      PRACTICES.forEach(p => {
+        const li = document.createElement("li");
+        const done = !!day.checks[p.key];
+        li.className = "item" + (done ? " done" : "");
+        li.innerHTML = `
+          <div class="label">
+            <div class="mark" aria-hidden="true"></div>
+            <div class="title">${p.label}</div>
+          </div>
+          <div class="badge">${done ? "Hecho" : "Pendiente"}</div>
+        `;
+        li.addEventListener("click", () => {
+          const prev = day.checks[p.key];
+          day.checks[p.key] = !day.checks[p.key];
+          day.updatedAt = new Date().toISOString();
+          saveState();
+          renderToday();
+          if (viewCalendar.style.display !== "none") renderCalendar();
+          showToast(day.checks[p.key] ? "Marcado." : "Desmarcado.", () => {
+            day.checks[p.key] = prev;
+            saveState();
+            renderToday();
+            if (viewCalendar.style.display !== "none") renderCalendar();
+          });
+        });
+        elList.appendChild(li);
+      });
+
+      const doneCount = PRACTICES.reduce((acc,p)=> acc + (day.checks[p.key] ? 1 : 0), 0);
+      elProgressText.textContent = `${doneCount}/7`;
+      elBarFill.style.width = `${(doneCount / 7) * 100}%`;
+
+      mortValue.textContent = String(day.mort);
+      fallBtn.textContent = day.fall ? "Caída (quitar)" : "Caída";
+
+      const last = state.lastConfessionISO
+        ? fmtHeaderDate(new Date(state.lastConfessionISO + "T12:00:00"))
+        : "—";
+      confLast.textContent = `Última: ${last}`;
+
+      const isConfToday = !!state.confessions[iso];
+      confToggle.textContent = isConfToday ? "Desmarcar" : "Marcar";
+    }
+
+    function doneOutOf7(iso){
+      const day = state.days[iso];
+      if (!day) return { done: 0, fall: false };
+      const done = PRACTICES.reduce((acc,p)=> acc + (day.checks?.[p.key] ? 1 : 0), 0);
+      return { done, fall: !!day.fall };
+    }
+
+    function renderCalendar(){
+      calTitle.textContent = fmtMonthTitle(calMonth);
+      calGrid.innerHTML = "";
+
+      const year = calMonth.getFullYear();
+      const month = calMonth.getMonth();
+
+      const first = toMidday(new Date(year, month, 1));
+      const startOffset = weekdayMon0(first);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const todayIso = toISODate(practiceDayFor(new Date()));
+
+      for (let i = 0; i < startOffset; i++){
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        calGrid.appendChild(empty);
+      }
+
+      for (let n = 1; n <= daysInMonth; n++){
+        const d = toMidday(new Date(year, month, n));
+        const iso = toISODate(d);
+
+        const { done, fall } = doneOutOf7(iso);
+        const isConf = !!state.confessions[iso];
+
+        const cell = document.createElement("div");
+        cell.className = "day" +
+          (fall ? " fall" : "") +
+          (iso === todayIso ? " today" : "");
+
+        const meta = fall ? "" : `<div class="dayMeta">${done}/7</div>`;
+        const conf = (!fall && isConf) ? `<div class="confCross" aria-hidden="true"></div>` : "";
+
+        cell.innerHTML = `
+          <div class="dayNum">${n}</div>
+          ${conf}
+          ${meta}
+        `;
+
+        cell.addEventListener("click", () => openDaySheet(iso));
+        calGrid.appendChild(cell);
+      }
+
+      const totalCells = startOffset + daysInMonth;
+      const remainder = totalCells % 7;
+      const tail = remainder === 0 ? 0 : (7 - remainder);
+      for (let i = 0; i < tail; i++){
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        calGrid.appendChild(empty);
+      }
+    }
+
+    function render(){
+      renderHeader();
+      renderToday();
+      if (viewCalendar.style.display !== "none") renderCalendar();
+    }
+
+    // ===== Actions: Mortificación =====
+    mortPlus.addEventListener("click", () => {
+      const iso = toISODate(activeDate);
+      const day = ensureDay(iso);
+      const prev = day.mort;
+      day.mort += 1;
+      day.updatedAt = new Date().toISOString();
+      saveState();
+      renderToday();
+      if (viewCalendar.style.display !== "none") renderCalendar();
+      showToast("Mortificación +1", () => {
+        day.mort = prev;
+        saveState();
+        renderToday();
+        if (viewCalendar.style.display !== "none") renderCalendar();
+      });
+    });
+
+    mortMinus.addEventListener("click", () => {
+      const iso = toISODate(activeDate);
+      const day = ensureDay(iso);
+      const prev = day.mort;
+      day.mort = Math.max(0, day.mort - 1);
+      day.updatedAt = new Date().toISOString();
+      saveState();
+      renderToday();
+      if (viewCalendar.style.display !== "none") renderCalendar();
+      showToast("Mortificación -1", () => {
+        day.mort = prev;
+        saveState();
+        renderToday();
+        if (viewCalendar.style.display !== "none") renderCalendar();
+      });
+    });
+
+    // ===== Actions: Navegar días =====
+    goYesterday.addEventListener("click", () => {
+      const d = new Date(activeDate);
+      d.setDate(d.getDate() - 1);
+      setActiveDate(d);
+    });
+
+    goToday.addEventListener("click", () => {
+      setActiveDate(practiceDayFor(new Date()));
+    });
+
+    // ===== Actions: Caída (SIN toast) =====
+    fallBtn.addEventListener("click", () => {
+      const iso = toISODate(activeDate);
+      const day = ensureDay(iso);
+      day.fall = !day.fall;
+      day.updatedAt = new Date().toISOString();
+      saveState();
+      render();
+      // sin mensajes
+    });
+
+    // ===== Actions: Confesión (silencioso) =====
+    confToggle.addEventListener("click", () => {
+      const iso = toISODate(activeDate);
+      const prev = !!state.confessions[iso];
+
+      if (prev) {
+        delete state.confessions[iso];
+      } else {
+        state.confessions[iso] = true;
+        state.lastConfessionISO = iso;
+      }
+
+      saveState();
+      render();
+      // sin mensajes
+    });
+
+    // ===== Reset =====
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("¿Reiniciar? Esto borra el historial del dispositivo.")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = defaultState();
+      setActiveDate(practiceDayFor(new Date()));
+      calMonth = new Date(activeDate); calMonth.setDate(1); calMonth = toMidday(calMonth);
+      setTab("today");
+      showToast("Datos reiniciados.", null);
+    });
+
+    // ===== Sheet (detalle día) =====
+    function openDaySheet(iso){
+      const d = new Date(iso + "T12:00:00");
+      sheetTitle.textContent = fmtHeaderDate(d);
+
+      const day = ensureDay(iso);
+      const { done } = doneOutOf7(iso);
+      const isConf = !!state.confessions[iso];
+
+      const listItems = PRACTICES.map(p => {
+        const ok = !!day.checks[p.key];
+        return `
+          <div class="miniLine">
+            <div class="k">${p.label}</div>
+            <div class="v">${ok ? "Hecho" : "Pendiente"}</div>
+          </div>
+        `;
+      }).join("");
+
+      sheetBody.innerHTML = `
+        <div class="miniLine">
+          <div class="k">Progreso</div>
+          <div class="v">${day.fall ? "—" : (done + "/7")}</div>
+        </div>
+
+        <div class="miniLine">
+          <div class="k">Mortificación</div>
+          <div class="v">${day.mort || 0}</div>
+        </div>
+
+        <div class="miniLine">
+          <div class="k">Caída</div>
+          <div class="v">${day.fall ? "Sí" : "No"}</div>
+        </div>
+
+        <div class="miniLine">
+          <div class="k">Confesión</div>
+          <div class="v">${isConf ? "Sí" : "No"}</div>
+        </div>
+
+        <div style="margin-top:10px"></div>
+        ${listItems}
+
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <button class="btn primary" id="sheetGo" type="button">Ver este día</button>
+          <button class="btn" id="sheetToggleConf" type="button">${isConf ? "Desmarcar confesión" : "Marcar confesión"}</button>
+          <button class="btn danger" id="sheetToggleFall" type="button">${day.fall ? "Quitar caída" : "Marcar caída"}</button>
+        </div>
+      `;
+
+      document.getElementById("sheetGo").onclick = () => {
+        setActiveDate(new Date(iso + "T12:00:00"));
+        closeSheet();
+        setTab("today");
+      };
+
+      document.getElementById("sheetToggleConf").onclick = () => {
+        if (state.confessions[iso]) delete state.confessions[iso];
+        else { state.confessions[iso] = true; state.lastConfessionISO = iso; }
+        saveState();
+        render();
+        openDaySheet(iso);
+      };
+
+      document.getElementById("sheetToggleFall").onclick = () => {
+        day.fall = !day.fall;
+        day.updatedAt = new Date().toISOString();
+        saveState();
+        render();
+        openDaySheet(iso);
+      };
+
+      sheetBack.classList.add("show");
+      sheet.classList.add("show");
+    }
+
+    function closeSheet(){
+      sheetBack.classList.remove("show");
+      sheet.classList.remove("show");
+    }
+    sheetBack.addEventListener("click", closeSheet);
+    sheetClose.addEventListener("click", closeSheet);
+
+    // ===== Init =====
+    render();
+    setTab("today");
+  </script>
+</body>
+</html>
