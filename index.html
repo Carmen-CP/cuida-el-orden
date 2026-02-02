@@ -56,7 +56,7 @@
     .shell{
       max-width: 520px;
       margin: 0 auto;
-      padding: 14px 14px 88px;
+      padding: 14px 14px 20px; /* ya no hay barra inferior */
     }
 
     header{
@@ -324,6 +324,7 @@
       border-top: 1px solid rgba(234,242,248,.07);
     }
 
+    /* ===== Calendario “más tabla” ===== */
     .calHead{
       display:flex;
       justify-content:space-between;
@@ -349,40 +350,45 @@
     .grid7{
       display:grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin-top: 12px;
+      gap: 0;                 /* sin huecos → más tabla */
+      margin-top: 10px;
+      border: 1px solid rgba(234,242,248,.10);
     }
 
     .dow{
       font-size: 11px;
       color: rgba(234,242,248,.60);
       text-align:center;
-      padding: 2px 0 6px;
+      padding: 8px 0;
       font-weight: 850;
       letter-spacing: .08em;
+      border-right: 1px solid rgba(234,242,248,.08);
+      background: rgba(234,242,248,.02);
     }
+    .dow:nth-child(7){ border-right: 0; }
 
     .day{
       position:relative;
-      border: 1px solid rgba(234,242,248,.06);
-      background: rgba(234,242,248,.015);
-      min-height: 56px;
-      padding: 7px 7px 10px;
+      border-right: 1px solid rgba(234,242,248,.08);
+      border-top: 1px solid rgba(234,242,248,.08);
+      background: rgba(234,242,248,.012);
+      min-height: 78px;       /* más aire vertical */
+      padding: 10px 8px 10px;
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
       border-radius: 0;
       transition: background .12s ease, transform .08s ease, border-color .12s ease;
     }
+    .day:nth-child(7n){ border-right: 0; }
+
     .day:active{
       transform: scale(.995);
       background: rgba(234,242,248,.03);
-      border-color: rgba(234,242,248,.10);
     }
 
     .day.empty{
-      border-color: transparent;
-      background: transparent;
+      background: rgba(0,0,0,0);
       cursor: default;
     }
 
@@ -394,18 +400,19 @@
 
     .dayMeta{
       position:absolute;
-      right:7px;
-      bottom:7px;
+      right:8px;
+      bottom:8px;
       font-size: 11px;
       color: rgba(234,242,248,.58);
       font-weight: 900;
       letter-spacing: .01em;
     }
 
+    /* Confesión: cruz simple */
     .confCross{
       position:absolute;
-      right:7px;
-      top:7px;
+      right:8px;
+      top:8px;
       width: 10px;
       height: 10px;
       opacity: .95;
@@ -422,6 +429,19 @@
     .confCross::before{ width: 10px; height: 1.6px; }
     .confCross::after{ width: 1.6px; height: 10px; }
 
+    /* Mortificación: rombo discreto (cuadrado rotado) */
+    .mortDiamond{
+      position:absolute;
+      left:8px;
+      top:9px;
+      width: 7px;
+      height: 7px;
+      background: rgba(234,242,248,.45); /* neutro sobrio */
+      transform: rotate(45deg);
+      opacity: .95;
+    }
+
+    /* Caída: negro absoluto y sin meta ni símbolos */
     .day.fall{
       background: var(--fallBlack);
       border-color: var(--fallBorder);
@@ -429,12 +449,14 @@
     .day.fall .dayNum{ color: rgba(234,242,248,.55); }
     .day.fall .dayMeta{ display:none; }
     .day.fall .confCross{ display:none; }
+    .day.fall .mortDiamond{ display:none; }
 
     .day.today{
       outline: 2px solid rgba(42,125,160,.42);
       outline-offset: -2px;
     }
 
+    /* Sheet */
     .sheetBack{
       position: fixed;
       inset:0;
@@ -508,35 +530,6 @@
 
     .miniLine .k{ font-weight: 950; }
     .miniLine .v{ color: var(--muted); font-size: 12px; font-weight: 900; }
-
-    .bottombar{
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      padding: 10px 12px;
-      background: rgba(6,24,32,.92);
-      border-top: 1px solid rgba(234,242,248,.10);
-      backdrop-filter: blur(10px);
-      display:flex;
-      justify-content:center;
-      z-index: 30;
-    }
-    .bottombar .inner{
-      width: min(520px, 100%);
-      display:flex;
-      justify-content:flex-end;
-      align-items:center;
-    }
-    .link{
-      border:0;
-      background:transparent;
-      color: rgba(234,242,248,.86);
-      text-decoration: underline;
-      cursor:pointer;
-      padding: 8px 8px;
-      font-size: 12.5px;
-      font-weight: 850;
-      -webkit-tap-highlight-color: transparent;
-    }
   </style>
 </head>
 
@@ -607,21 +600,14 @@
           </div>
         </div>
 
-        <div class="grid7" style="margin-top:10px">
+        <div class="grid7" style="border-bottom:0">
           <div class="dow">L</div><div class="dow">M</div><div class="dow">X</div><div class="dow">J</div><div class="dow">V</div><div class="dow">S</div><div class="dow">D</div>
         </div>
 
-        <div class="grid7" id="calGrid"></div>
+        <div class="grid7" id="calGrid" style="margin-top:0; border-top:0"></div>
       </section>
     </section>
   </main>
-
-  <!-- Bottom bar -->
-  <div class="bottombar">
-    <div class="inner">
-      <button class="link" id="resetBtn" type="button">Reiniciar</button>
-    </div>
-  </div>
 
   <!-- Sheet detalle día -->
   <div class="sheetBack" id="sheetBack"></div>
@@ -669,8 +655,6 @@
 
     const confLast = document.getElementById("confLast");
     const confToggle = document.getElementById("confToggle");
-
-    const resetBtn = document.getElementById("resetBtn");
 
     const calTitle = document.getElementById("calTitle");
     const calPrev = document.getElementById("calPrev");
@@ -817,12 +801,15 @@
         const done = !!day.checks[p.key];
         li.className = "item" + (done ? " done" : "");
 
+        // Cambio A: Pendiente se queda / Hecho desaparece
+        const badgeText = done ? "" : "Pendiente";
+
         li.innerHTML = `
           <div class="label">
             <button class="markBtn" type="button" aria-label="${done ? "Hecho" : "Pendiente"}"></button>
             <div class="title">${p.label}</div>
           </div>
-          <div class="badge">${done ? "Hecho" : "Pendiente"}</div>
+          <div class="badge">${badgeText}</div>
         `;
 
         const btn = li.querySelector(".markBtn");
@@ -853,9 +840,9 @@
 
     function doneOutOf7(iso){
       const day = state.days[iso];
-      if (!day) return { done: 0, fall: false };
+      if (!day) return { done: 0, fall: false, mort: 0 };
       const done = PRACTICES.reduce((acc,p)=> acc + (day.checks?.[p.key] ? 1 : 0), 0);
-      return { done, fall: !!day.fall };
+      return { done, fall: !!day.fall, mort: day.mort || 0 };
     }
 
     function renderCalendar(){
@@ -869,8 +856,10 @@
       const startOffset = weekdayMon0(first);
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+      // “Hoy” según la lógica de cierre 02:30 (día activo)
       const todayIso = toISODate(practiceDayFor(new Date()));
 
+      // huecos iniciales
       for (let i = 0; i < startOffset; i++){
         const empty = document.createElement("div");
         empty.className = "day empty";
@@ -881,7 +870,7 @@
         const d = toMidday(new Date(year, month, n));
         const iso = toISODate(d);
 
-        const { done, fall } = doneOutOf7(iso);
+        const { done, fall, mort } = doneOutOf7(iso);
         const isConf = !!state.confessions[iso];
 
         const cell = document.createElement("div");
@@ -889,11 +878,23 @@
           (fall ? " fall" : "") +
           (iso === todayIso ? " today" : "");
 
-        const meta = fall ? "" : `<div class="dayMeta">${done}/7</div>`;
+        // Cambio B: 0/7 solo en días pasados, hoy NO muestra 0/7
+        // - pasado (< todayIso): muestra 0/7 también
+        // - hoy (= todayIso): solo muestra si done>0
+        // - futuro (> todayIso): no muestra (a menos que done>0 por alguna razón)
+        const isPast = iso < todayIso;
+        const showMeta = (!fall) && (done > 0 || isPast);
+        const meta = showMeta ? `<div class="dayMeta">${done}/7</div>` : "";
+
+        // Cambio C: rombo si mort>0 (y no caída)
+        const mortMark = (!fall && mort > 0) ? `<div class="mortDiamond" aria-hidden="true"></div>` : "";
+
+        // Confesión: cruz si procede (y no caída)
         const conf = (!fall && isConf) ? `<div class="confCross" aria-hidden="true"></div>` : "";
 
         cell.innerHTML = `
           <div class="dayNum">${n}</div>
+          ${mortMark}
           ${conf}
           ${meta}
         `;
@@ -902,6 +903,7 @@
         calGrid.appendChild(cell);
       }
 
+      // huecos finales para completar semana (tabla uniforme)
       const totalCells = startOffset + daysInMonth;
       const remainder = totalCells % 7;
       const tail = remainder === 0 ? 0 : (7 - remainder);
@@ -970,16 +972,6 @@
       }
 
       saveState();
-      render();
-    });
-
-    resetBtn.addEventListener("click", () => {
-      if (!confirm("¿Reiniciar? Esto borra el historial del dispositivo.")) return;
-      localStorage.removeItem(STORAGE_KEY);
-      state = defaultState();
-      setActiveDate(practiceDayFor(new Date()));
-      calMonth = new Date(activeDate); calMonth.setDate(1); calMonth = toMidday(calMonth);
-      setTab("today");
       render();
     });
 
@@ -1072,3 +1064,5 @@
   </script>
 </body>
 </html>
+
+
