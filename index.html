@@ -404,15 +404,15 @@
       z-index: 2;
     }
 
-    /* === CAMBIO 1: iconos en COLUMNA (cruz arriba, destello debajo) === */
+    /* Iconos en COLUMNA (cruz arriba, destello debajo) */
     .dayIcons{
       position:absolute;
       right:10px;
       top:10px;
       display:flex;
-      flex-direction:column;   /* <-- cambio */
-      gap:6px;                 /* <-- cambio */
-      align-items:flex-end;    /* <-- cambio */
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-end;
       z-index: 3;
     }
 
@@ -477,7 +477,7 @@
       background: rgba(199,168,98,.12);
     }
 
-    /* === CAMBIO 3: Caída negro, PERO manteniendo registro visible === */
+    /* Caída negro, manteniendo registro visible */
     .day.fall{
       background: var(--fallBlack);
       border-color: var(--fallBorder);
@@ -490,7 +490,6 @@
       border-color: rgba(234,242,248,.18);
       background: rgba(234,242,248,.04);
     }
-    /* IMPORTANTE: ya NO ocultamos .dayMeta ni .dayIcons en caída */
 
     .day.today{
       outline: 2px solid rgba(42,125,160,.42);
@@ -604,7 +603,7 @@
           <div class="row">
             <div class="rowLeft">
               <div class="k">Mortificación</div>
-              <div class="v">No cuenta para 7 prácticas</div>
+              <!-- (ARREGLO 2) Quitada la leyenda -->
             </div>
             <div class="stepper">
               <button class="btn" id="mortMinus" type="button" aria-label="Restar">—</button>
@@ -737,6 +736,13 @@
       return (js + 6) % 7;
     }
 
+    // (ARREGLO 3) Días entre fechas ISO (mediodía para evitar problemas de hora)
+    function daysBetweenISO(fromISO, toISO){
+      const a = new Date(fromISO + "T12:00:00");
+      const b = new Date(toISO + "T12:00:00");
+      return Math.round((b - a) / (1000*60*60*24));
+    }
+
     // Storage
     function defaultState(){
       return { days: {}, confessions: {}, lastConfessionISO: null };
@@ -757,6 +763,17 @@
 
     let state = loadState();
     function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    // (ARREGLO 1) Recalcular última confesión real
+    function recomputeLastConfessionISO(){
+      const keys = Object.keys(state.confessions || {}).filter(k => state.confessions[k]);
+      if (keys.length === 0) {
+        state.lastConfessionISO = null;
+        return;
+      }
+      keys.sort(); // ISO YYYY-MM-DD
+      state.lastConfessionISO = keys[keys.length - 1];
+    }
 
     function ensureDay(iso){
       if (!state.days[iso]){
@@ -842,7 +859,6 @@
         const done = !!day.checks[p.key];
         li.className = "item" + (done ? " done" : "");
 
-        // Pendiente se queda; Hecho desaparece
         const badgeText = done ? "" : "Pendiente";
 
         li.innerHTML = `
@@ -870,10 +886,22 @@
       mortValue.textContent = String(day.mort);
       fallBtn.textContent = day.fall ? "Caída (quitar)" : "Caída";
 
-      const last = state.lastConfessionISO
-        ? fmtHeaderDate(new Date(state.lastConfessionISO + "T12:00:00"))
-        : "—";
-      confLast.textContent = `Última: ${last}`;
+      // (ARREGLO 3) "Última: fecha · Hace X días"
+      const lastISO = state.lastConfessionISO;
+      if (!lastISO) {
+        confLast.textContent = "Última: —";
+      } else {
+        const lastText = fmtHeaderDate(new Date(lastISO + "T12:00:00"));
+        const todayISO = toISODate(activeDate);
+        const diff = daysBetweenISO(lastISO, todayISO);
+
+        let since = "";
+        if (diff === 0) since = "Hoy";
+        else if (diff === 1) since = "Ayer";
+        else if (diff > 1) since = `Hace ${diff} días`;
+
+        confLast.textContent = `Última: ${lastText}${since ? " · " + since : ""}`;
+      }
 
       const isConfToday = !!state.confessions[iso];
       confToggle.textContent = isConfToday ? "Desmarcar" : "Marcar";
@@ -897,10 +925,8 @@
       const startOffset = weekdayMon0(first);
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      // “Hoy” según cierre 02:30 (día activo)
       const todayIso = toISODate(practiceDayFor(new Date()));
 
-      // huecos iniciales
       for (let i = 0; i < startOffset; i++){
         const empty = document.createElement("div");
         empty.className = "day empty";
@@ -919,13 +945,11 @@
           (fall ? " fall" : "") +
           (iso === todayIso ? " today" : "");
 
-        // 0/7 solo días pasados; hoy solo si done>0
         const isPast = iso < todayIso;
-        const showMeta = (done > 0 || isPast); // (en caída también se verá)
+        const showMeta = (done > 0 || isPast);
         const metaClass = (done === 7) ? "dayMeta perfect" : "dayMeta";
         const meta = showMeta ? `<div class="${metaClass}">${done}/7</div>` : "";
 
-        // === CAMBIO 2: Orden fijo: cruz arriba, destello debajo ===
         const icons = (isConf || mort > 0)
           ? `<div class="dayIcons">
                ${isConf ? `<div class="confCross" aria-hidden="true"></div>` : ``}
@@ -943,7 +967,6 @@
         calGrid.appendChild(cell);
       }
 
-      // huecos finales
       const totalCells = startOffset + daysInMonth;
       const remainder = totalCells % 7;
       const tail = remainder === 0 ? 0 : (7 - remainder);
@@ -1000,12 +1023,14 @@
       render();
     });
 
+    // (ARREGLO 1) También arreglado aquí (botón principal)
     confToggle.addEventListener("click", () => {
       const iso = toISODate(activeDate);
       const prev = !!state.confessions[iso];
 
       if (prev) {
         delete state.confessions[iso];
+        recomputeLastConfessionISO();
       } else {
         state.confessions[iso] = true;
         state.lastConfessionISO = iso;
@@ -1071,18 +1096,19 @@
         setTab("today");
       };
 
+      // (ARREGLO 1) También arreglado aquí
       document.getElementById("sheetToggleConf").onclick = () => {
-  if (state.confessions[iso]) {
-    delete state.confessions[iso];
-    recomputeLastConfessionISO();
-  } else {
-    state.confessions[iso] = true;
-    state.lastConfessionISO = iso;
-  }
-  saveState();
-  render();
-  openDaySheet(iso);
-};
+        if (state.confessions[iso]) {
+          delete state.confessions[iso];
+          recomputeLastConfessionISO();
+        } else {
+          state.confessions[iso] = true;
+          state.lastConfessionISO = iso;
+        }
+        saveState();
+        render();
+        openDaySheet(iso);
+      };
 
       document.getElementById("sheetToggleFall").onclick = () => {
         day.fall = !day.fall;
@@ -1109,4 +1135,3 @@
   </script>
 </body>
 </html>
-
