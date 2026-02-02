@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#0A2230" />
   <title>Cuida el orden</title>
 
+  <!-- Icono (debe existir icon.png en la raíz del repo) -->
+  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+
   <style>
     :root{
       --bg0:#061820;
@@ -105,14 +109,14 @@
       font-size: 13px;
       cursor:pointer;
       -webkit-tap-highlight-color: transparent;
-      border-radius: 0; /* ángulo recto */
+      border-radius: 0;
     }
     .tab.active{
       background: var(--accent);
       border-color: var(--accentBorder);
     }
 
-    /* ===== Panel “ligero” ===== */
+    /* ===== Panel ===== */
     .panel{
       margin-top: 16px;
       border: 1px solid var(--line2);
@@ -165,7 +169,7 @@
       background: linear-gradient(90deg, rgba(42,125,160,.95), rgba(26,92,121,.65));
     }
 
-    /* ===== Lista fluida de prácticas ===== */
+    /* ===== Lista prácticas ===== */
     ul.list{
       list-style:none;
       padding: 0;
@@ -181,17 +185,11 @@
       padding: 14px 4px;
       border-bottom: 1px solid rgba(234,242,248,.07);
       background: transparent;
-      cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
-      transition: background .12s ease, transform .08s ease;
     }
     .item:first-child{
       border-top: 1px solid rgba(234,242,248,.07);
-    }
-    .item:active{
-      background: rgba(234,242,248,.03);
-      transform: scale(.995);
     }
 
     .label{
@@ -201,13 +199,34 @@
       min-width: 0;
     }
 
-    .mark{
-      width: 12px;
-      height: 12px;
+    /* Recuadro clicable (botón) */
+    .markBtn{
+      width: 18px;
+      height: 18px;
+      padding: 0;
       border: 1px solid rgba(234,242,248,.22);
       background: transparent;
       flex: 0 0 auto;
       border-radius: 0;
+      cursor: pointer;
+      display:grid;
+      place-items:center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .markBtn:active{ transform: translateY(1px); }
+
+    /* check (solo cuando está hecho) */
+    .item.done .markBtn{
+      border-color: rgba(199,168,98,.65);
+      background: rgba(199,168,98,.12);
+    }
+    .item.done .markBtn::after{
+      content:"✓";
+      font-size: 14px;
+      font-weight: 950;
+      line-height: 1;
+      color: rgba(234,242,248,.92);
+      transform: translateY(-0.5px);
     }
 
     .title{
@@ -218,7 +237,7 @@
       text-overflow:ellipsis;
     }
 
-    /* Estado visible */
+    /* Estado visible (lo mantengo) */
     .badge{
       border: 0;
       padding: 0;
@@ -232,23 +251,8 @@
       text-align: right;
     }
 
-    /* Hecho: barra dorada + marcador dorado */
-    .item.done::before{
-      content:"";
-      position:absolute;
-      left:0; top:0; bottom:0;
-      width: 2px;
-      background: rgba(199,168,98,.55);
-    }
-    .item.done .mark{
-      border-color: rgba(199,168,98,.65);
-      background: rgba(199,168,98,.18);
-    }
-
     /* ===== Filas (Mortificación / Confesión) ===== */
-    .sectionline{
-      padding: 10px 2px 6px;
-    }
+    .sectionline{ padding: 10px 2px 6px; }
 
     .row{
       display:flex;
@@ -302,7 +306,7 @@
       font-weight: 900;
       font-size: 13px;
       cursor:pointer;
-      border-radius: 0; /* ángulo recto */
+      border-radius: 0;
       -webkit-tap-highlight-color: transparent;
     }
     .btn:active{ transform: translateY(1px); }
@@ -353,7 +357,7 @@
     .grid7{
       display:grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 10px;               /* más aire */
+      gap: 10px;
       margin-top: 12px;
     }
 
@@ -368,9 +372,9 @@
 
     .day{
       position:relative;
-      border: 1px solid rgba(234,242,248,.06); /* línea más fina */
-      background: rgba(234,242,248,.015);      /* aún más “papel” */
-      min-height: 56px;                         /* más táctil */
+      border: 1px solid rgba(234,242,248,.06);
+      background: rgba(234,242,248,.015);
+      min-height: 56px;
       padding: 7px 7px 10px;
       cursor:pointer;
       user-select:none;
@@ -436,7 +440,6 @@
     .day.fall .dayMeta{ display:none; }
     .day.fall .confCross{ display:none; }
 
-    /* Hoy: contorno sobrio */
     .day.today{
       outline: 2px solid rgba(42,125,160,.42);
       outline-offset: -2px;
@@ -498,9 +501,7 @@
       cursor:pointer;
     }
 
-    .sheetBody{
-      padding: 10px 4px 4px;
-    }
+    .sheetBody{ padding: 10px 4px 4px; }
 
     .miniLine{
       display:flex;
@@ -547,7 +548,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ===== Toast (se mantiene para otras acciones, NO para Caída) ===== */
+    /* ===== Toast ===== */
     .toast{
       position: fixed;
       left: 50%;
@@ -872,6 +873,24 @@
       document.body.classList.toggle("fallMode", !!ensureDay(iso).fall);
     }
 
+    function togglePractice(iso, key){
+      const day = ensureDay(iso);
+      const prev = !!day.checks[key];
+      day.checks[key] = !day.checks[key];
+      day.updatedAt = new Date().toISOString();
+      saveState();
+      renderToday();
+      if (viewCalendar.style.display !== "none") renderCalendar();
+
+      // mensaje neutro (sin "marcar/desmarcar")
+      showToast("Actualizado.", () => {
+        day.checks[key] = prev;
+        saveState();
+        renderToday();
+        if (viewCalendar.style.display !== "none") renderCalendar();
+      });
+    }
+
     function renderToday(){
       const iso = toISODate(activeDate);
       const day = ensureDay(iso);
@@ -881,27 +900,23 @@
         const li = document.createElement("li");
         const done = !!day.checks[p.key];
         li.className = "item" + (done ? " done" : "");
+
         li.innerHTML = `
           <div class="label">
-            <div class="mark" aria-hidden="true"></div>
+            <button class="markBtn" type="button" aria-label="${done ? "Hecho" : "Pendiente"}"></button>
             <div class="title">${p.label}</div>
           </div>
           <div class="badge">${done ? "Hecho" : "Pendiente"}</div>
         `;
-        li.addEventListener("click", () => {
-          const prev = day.checks[p.key];
-          day.checks[p.key] = !day.checks[p.key];
-          day.updatedAt = new Date().toISOString();
-          saveState();
-          renderToday();
-          if (viewCalendar.style.display !== "none") renderCalendar();
-          showToast(day.checks[p.key] ? "Marcado." : "Desmarcado.", () => {
-            day.checks[p.key] = prev;
-            saveState();
-            renderToday();
-            if (viewCalendar.style.display !== "none") renderCalendar();
-          });
+
+        // SOLO el recuadro marca/desmarca
+        const btn = li.querySelector(".markBtn");
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          togglePractice(iso, p.key);
         });
+
         elList.appendChild(li);
       });
 
@@ -1042,7 +1057,6 @@
       day.updatedAt = new Date().toISOString();
       saveState();
       render();
-      // sin mensajes
     });
 
     // ===== Actions: Confesión (silencioso) =====
@@ -1059,7 +1073,6 @@
 
       saveState();
       render();
-      // sin mensajes
     });
 
     // ===== Reset =====
