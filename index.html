@@ -24,7 +24,8 @@
       --accent: rgba(42,125,160,.32);
       --accentBorder: rgba(42,125,160,.55);
 
-      --gold: rgba(199,168,98,.82);
+      --gold: rgba(199,168,98,.86);
+      --goldSoft: rgba(199,168,98,.28);
 
       --shadow: 0 14px 34px rgba(0,0,0,.28);
 
@@ -56,7 +57,7 @@
     .shell{
       max-width: 520px;
       margin: 0 auto;
-      padding: 14px 14px 20px; /* ya no hay barra inferior */
+      padding: 14px 14px 20px; /* sin barra inferior */
     }
 
     header{
@@ -350,7 +351,7 @@
     .grid7{
       display:grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 0;                 /* sin huecos → más tabla */
+      gap: 0;
       margin-top: 10px;
       border: 1px solid rgba(234,242,248,.10);
     }
@@ -372,13 +373,13 @@
       border-right: 1px solid rgba(234,242,248,.08);
       border-top: 1px solid rgba(234,242,248,.08);
       background: rgba(234,242,248,.012);
-      min-height: 78px;       /* más aire vertical */
-      padding: 10px 8px 10px;
+      min-height: 82px;
+      padding: 10px 10px 12px;
       cursor:pointer;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
       border-radius: 0;
-      transition: background .12s ease, transform .08s ease, border-color .12s ease;
+      transition: background .12s ease, transform .08s ease;
     }
     .day:nth-child(7n){ border-right: 0; }
 
@@ -392,30 +393,34 @@
       cursor: default;
     }
 
+    /* Número arriba: claro y sin solapes */
     .dayNum{
-      font-weight: 900;
-      font-size: 12px;
-      color: rgba(234,242,248,.88);
-    }
-
-    .dayMeta{
       position:absolute;
-      right:8px;
-      bottom:8px;
-      font-size: 11px;
-      color: rgba(234,242,248,.58);
-      font-weight: 900;
-      letter-spacing: .01em;
+      left:10px;
+      top:10px;
+      font-weight: 950;
+      font-size: 12.5px;
+      color: rgba(234,242,248,.92);
+      z-index: 2;
     }
 
-    /* Confesión: cruz simple */
+    /* Grupo de iconos arriba derecha: cruz + destello juntos */
+    .dayIcons{
+      position:absolute;
+      right:10px;
+      top:10px;
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+      z-index: 3;
+    }
+
+    /* Cruz: eje vertical más largo que los brazos */
     .confCross{
-      position:absolute;
-      right:8px;
-      top:8px;
+      position:relative;
       width: 10px;
-      height: 10px;
-      opacity: .95;
+      height: 14px;
+      opacity: .98;
     }
     .confCross::before,
     .confCross::after{
@@ -423,22 +428,54 @@
       position:absolute;
       left:50%;
       top:50%;
-      background: rgba(199,168,98,.85);
+      background: rgba(199,168,98,.86);
       transform: translate(-50%,-50%);
     }
-    .confCross::before{ width: 10px; height: 1.6px; }
-    .confCross::after{ width: 1.6px; height: 10px; }
+    /* brazo horizontal corto */
+    .confCross::before{ width: 10px; height: 1.6px; top: 5px; }
+    /* eje vertical más largo */
+    .confCross::after{ width: 1.7px; height: 14px; top: 7px; }
 
-    /* Mortificación: rombo discreto (cuadrado rotado) */
-    .mortDiamond{
+    /* Destello plano (mortificación), dorado apagado */
+    .mortSpark{
+      width: 10px;
+      height: 10px;
+      background: rgba(199,168,98,.78);
+      border: 1px solid rgba(199,168,98,.30);
+      clip-path: polygon(
+        50% 0%,
+        62% 38%,
+        100% 50%,
+        62% 62%,
+        50% 100%,
+        38% 62%,
+        0% 50%,
+        38% 38%
+      );
+      opacity: .98;
+      transform: translateY(1px);
+    }
+
+    /* Progreso x/7: más legible (pastilla sobria, sin redondeos) */
+    .dayMeta{
       position:absolute;
-      left:8px;
-      top:9px;
-      width: 7px;
-      height: 7px;
-      background: rgba(234,242,248,.45); /* neutro sobrio */
-      transform: rotate(45deg);
-      opacity: .95;
+      right:10px;
+      bottom:10px;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .01em;
+      color: rgba(234,242,248,.82);
+      border: 1px solid rgba(234,242,248,.12);
+      background: rgba(234,242,248,.06);
+      padding: 2px 6px;
+      line-height: 1.2;
+    }
+
+    /* Solo 7/7 resaltado */
+    .dayMeta.perfect{
+      color: rgba(199,168,98,.92);
+      border-color: rgba(199,168,98,.40);
+      background: rgba(199,168,98,.12);
     }
 
     /* Caída: negro absoluto y sin meta ni símbolos */
@@ -448,8 +485,7 @@
     }
     .day.fall .dayNum{ color: rgba(234,242,248,.55); }
     .day.fall .dayMeta{ display:none; }
-    .day.fall .confCross{ display:none; }
-    .day.fall .mortDiamond{ display:none; }
+    .day.fall .dayIcons{ display:none; }
 
     .day.today{
       outline: 2px solid rgba(42,125,160,.42);
@@ -801,7 +837,7 @@
         const done = !!day.checks[p.key];
         li.className = "item" + (done ? " done" : "");
 
-        // Cambio A: Pendiente se queda / Hecho desaparece
+        // Pendiente se queda; Hecho desaparece
         const badgeText = done ? "" : "Pendiente";
 
         li.innerHTML = `
@@ -856,7 +892,7 @@
       const startOffset = weekdayMon0(first);
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      // “Hoy” según la lógica de cierre 02:30 (día activo)
+      // “Hoy” según cierre 02:30 (día activo)
       const todayIso = toISODate(practiceDayFor(new Date()));
 
       // huecos iniciales
@@ -878,24 +914,25 @@
           (fall ? " fall" : "") +
           (iso === todayIso ? " today" : "");
 
-        // Cambio B: 0/7 solo en días pasados, hoy NO muestra 0/7
-        // - pasado (< todayIso): muestra 0/7 también
-        // - hoy (= todayIso): solo muestra si done>0
-        // - futuro (> todayIso): no muestra (a menos que done>0 por alguna razón)
+        // 0/7 solo días pasados; hoy solo si done>0
         const isPast = iso < todayIso;
         const showMeta = (!fall) && (done > 0 || isPast);
-        const meta = showMeta ? `<div class="dayMeta">${done}/7</div>` : "";
+        const metaClass = (done === 7) ? "dayMeta perfect" : "dayMeta";
+        const meta = showMeta ? `<div class="${metaClass}">${done}/7</div>` : "";
 
-        // Cambio C: rombo si mort>0 (y no caída)
-        const mortMark = (!fall && mort > 0) ? `<div class="mortDiamond" aria-hidden="true"></div>` : "";
-
-        // Confesión: cruz si procede (y no caída)
-        const conf = (!fall && isConf) ? `<div class="confCross" aria-hidden="true"></div>` : "";
+        // Iconos juntos (arriba derecha)
+        // - cruz si confesión
+        // - destello si mortificación > 0
+        const icons = (!fall && (isConf || mort > 0))
+          ? `<div class="dayIcons">
+               ${mort > 0 ? `<div class="mortSpark" aria-hidden="true"></div>` : ``}
+               ${isConf ? `<div class="confCross" aria-hidden="true"></div>` : ``}
+             </div>`
+          : "";
 
         cell.innerHTML = `
           <div class="dayNum">${n}</div>
-          ${mortMark}
-          ${conf}
+          ${icons}
           ${meta}
         `;
 
@@ -903,7 +940,7 @@
         calGrid.appendChild(cell);
       }
 
-      // huecos finales para completar semana (tabla uniforme)
+      // huecos finales
       const totalCells = startOffset + daysInMonth;
       const remainder = totalCells % 7;
       const tail = remainder === 0 ? 0 : (7 - remainder);
@@ -1064,5 +1101,3 @@
   </script>
 </body>
 </html>
-
-
