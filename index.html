@@ -1072,12 +1072,17 @@
       };
 
       document.getElementById("sheetToggleConf").onclick = () => {
-        if (state.confessions[iso]) delete state.confessions[iso];
-        else { state.confessions[iso] = true; state.lastConfessionISO = iso; }
-        saveState();
-        render();
-        openDaySheet(iso);
-      };
+  if (state.confessions[iso]) {
+    delete state.confessions[iso];
+    recomputeLastConfessionISO();
+  } else {
+    state.confessions[iso] = true;
+    state.lastConfessionISO = iso;
+  }
+  saveState();
+  render();
+  openDaySheet(iso);
+};
 
       document.getElementById("sheetToggleFall").onclick = () => {
         day.fall = !day.fall;
@@ -1104,3 +1109,4 @@
   </script>
 </body>
 </html>
+
