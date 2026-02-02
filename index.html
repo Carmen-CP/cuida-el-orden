@@ -393,7 +393,7 @@
       cursor: default;
     }
 
-    /* Número arriba: claro y sin solapes */
+    /* Número arriba */
     .dayNum{
       position:absolute;
       left:10px;
@@ -404,18 +404,19 @@
       z-index: 2;
     }
 
-    /* Grupo de iconos arriba derecha: cruz + destello juntos */
+    /* === CAMBIO 1: iconos en COLUMNA (cruz arriba, destello debajo) === */
     .dayIcons{
       position:absolute;
       right:10px;
       top:10px;
       display:flex;
-      gap:8px;
-      align-items:flex-start;
+      flex-direction:column;   /* <-- cambio */
+      gap:6px;                 /* <-- cambio */
+      align-items:flex-end;    /* <-- cambio */
       z-index: 3;
     }
 
-    /* Cruz: eje vertical más largo que los brazos */
+    /* Cruz: eje vertical más largo */
     .confCross{
       position:relative;
       width: 10px;
@@ -431,12 +432,10 @@
       background: rgba(199,168,98,.86);
       transform: translate(-50%,-50%);
     }
-    /* brazo horizontal corto */
     .confCross::before{ width: 10px; height: 1.6px; top: 5px; }
-    /* eje vertical más largo */
     .confCross::after{ width: 1.7px; height: 14px; top: 7px; }
 
-    /* Destello plano (mortificación), dorado apagado */
+    /* Destello plano dorado */
     .mortSpark{
       width: 10px;
       height: 10px;
@@ -456,7 +455,7 @@
       transform: translateY(1px);
     }
 
-    /* Progreso x/7: más legible (pastilla sobria, sin redondeos) */
+    /* Progreso x/7 */
     .dayMeta{
       position:absolute;
       right:10px;
@@ -478,14 +477,20 @@
       background: rgba(199,168,98,.12);
     }
 
-    /* Caída: negro absoluto y sin meta ni símbolos */
+    /* === CAMBIO 3: Caída negro, PERO manteniendo registro visible === */
     .day.fall{
       background: var(--fallBlack);
       border-color: var(--fallBorder);
     }
-    .day.fall .dayNum{ color: rgba(234,242,248,.55); }
-    .day.fall .dayMeta{ display:none; }
-    .day.fall .dayIcons{ display:none; }
+    .day.fall .dayNum{
+      color: rgba(234,242,248,.78);
+    }
+    .day.fall .dayMeta{
+      color: rgba(234,242,248,.78);
+      border-color: rgba(234,242,248,.18);
+      background: rgba(234,242,248,.04);
+    }
+    /* IMPORTANTE: ya NO ocultamos .dayMeta ni .dayIcons en caída */
 
     .day.today{
       outline: 2px solid rgba(42,125,160,.42);
@@ -916,17 +921,15 @@
 
         // 0/7 solo días pasados; hoy solo si done>0
         const isPast = iso < todayIso;
-        const showMeta = (!fall) && (done > 0 || isPast);
+        const showMeta = (done > 0 || isPast); // (en caída también se verá)
         const metaClass = (done === 7) ? "dayMeta perfect" : "dayMeta";
         const meta = showMeta ? `<div class="${metaClass}">${done}/7</div>` : "";
 
-        // Iconos juntos (arriba derecha)
-        // - cruz si confesión
-        // - destello si mortificación > 0
-        const icons = (!fall && (isConf || mort > 0))
+        // === CAMBIO 2: Orden fijo: cruz arriba, destello debajo ===
+        const icons = (isConf || mort > 0)
           ? `<div class="dayIcons">
-               ${mort > 0 ? `<div class="mortSpark" aria-hidden="true"></div>` : ``}
                ${isConf ? `<div class="confCross" aria-hidden="true"></div>` : ``}
+               ${mort > 0 ? `<div class="mortSpark" aria-hidden="true"></div>` : ``}
              </div>`
           : "";
 
