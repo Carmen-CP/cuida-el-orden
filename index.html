@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0A2230" />
   <title>Cuida el orden</title>
 
-  <!-- Icono (debe existir icon.png en la raíz del repo) -->
+  <!-- Icono -->
   <link rel="icon" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
 
@@ -47,7 +47,6 @@
       color: var(--ink);
     }
 
-    /* modo caída (solo cuando el día activo tiene caída) */
     body.fallMode{
       background:
         radial-gradient(900px 600px at 30% 10%, rgba(234,242,248,.04), transparent 60%),
@@ -60,7 +59,6 @@
       padding: 14px 14px 88px;
     }
 
-    /* ===== Header ===== */
     header{
       display:flex;
       justify-content:space-between;
@@ -116,7 +114,6 @@
       border-color: var(--accentBorder);
     }
 
-    /* ===== Panel ===== */
     .panel{
       margin-top: 16px;
       border: 1px solid var(--line2);
@@ -169,7 +166,6 @@
       background: linear-gradient(90deg, rgba(42,125,160,.95), rgba(26,92,121,.65));
     }
 
-    /* ===== Lista prácticas ===== */
     ul.list{
       list-style:none;
       padding: 0;
@@ -177,7 +173,6 @@
     }
 
     .item{
-      position:relative;
       display:flex;
       justify-content:space-between;
       align-items:center;
@@ -199,7 +194,7 @@
       min-width: 0;
     }
 
-    /* Recuadro clicable (botón) */
+    /* Recuadro clicable */
     .markBtn{
       width: 18px;
       height: 18px;
@@ -215,7 +210,6 @@
     }
     .markBtn:active{ transform: translateY(1px); }
 
-    /* check (solo cuando está hecho) */
     .item.done .markBtn{
       border-color: rgba(199,168,98,.65);
       background: rgba(199,168,98,.12);
@@ -237,7 +231,6 @@
       text-overflow:ellipsis;
     }
 
-    /* Estado visible (lo mantengo) */
     .badge{
       border: 0;
       padding: 0;
@@ -251,8 +244,9 @@
       text-align: right;
     }
 
-    /* ===== Filas (Mortificación / Confesión) ===== */
-    .sectionline{ padding: 10px 2px 6px; }
+    .sectionline{
+      padding: 10px 2px 6px;
+    }
 
     .row{
       display:flex;
@@ -297,7 +291,6 @@
       letter-spacing:.3px;
     }
 
-    /* ===== Botones ===== */
     .btn{
       border: 1px solid rgba(234,242,248,.12);
       background: rgba(234,242,248,.05);
@@ -331,7 +324,6 @@
       border-top: 1px solid rgba(234,242,248,.07);
     }
 
-    /* ===== Calendario (planner móvil) ===== */
     .calHead{
       display:flex;
       justify-content:space-between;
@@ -410,7 +402,6 @@
       letter-spacing: .01em;
     }
 
-    /* Confesión: cruz simple dorada */
     .confCross{
       position:absolute;
       right:7px;
@@ -431,7 +422,6 @@
     .confCross::before{ width: 10px; height: 1.6px; }
     .confCross::after{ width: 1.6px; height: 10px; }
 
-    /* Caída: negro absoluto y sin x/7 ni cruz */
     .day.fall{
       background: var(--fallBlack);
       border-color: var(--fallBorder);
@@ -445,7 +435,6 @@
       outline-offset: -2px;
     }
 
-    /* ===== Modal “sheet” ===== */
     .sheetBack{
       position: fixed;
       inset:0;
@@ -501,7 +490,9 @@
       cursor:pointer;
     }
 
-    .sheetBody{ padding: 10px 4px 4px; }
+    .sheetBody{
+      padding: 10px 4px 4px;
+    }
 
     .miniLine{
       display:flex;
@@ -518,7 +509,6 @@
     .miniLine .k{ font-weight: 950; }
     .miniLine .v{ color: var(--muted); font-size: 12px; font-weight: 900; }
 
-    /* ===== Bottom bar ===== */
     .bottombar{
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -547,35 +537,6 @@
       font-weight: 850;
       -webkit-tap-highlight-color: transparent;
     }
-
-    /* ===== Toast ===== */
-    .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 72px;
-      transform: translateX(-50%);
-      background: rgba(10,35,48,.92);
-      border: 1px solid rgba(234,242,248,.14);
-      padding: 10px 12px;
-      display:none;
-      gap:10px;
-      align-items:center;
-      z-index: 80;
-      max-width: calc(100% - 24px);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 18px 40px rgba(0,0,0,.35);
-      border-radius: 0;
-    }
-    .toast.show{ display:flex; }
-    .toast span{
-      font-size: 12.5px;
-      color: rgba(234,242,248,.92);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 62vw;
-      font-weight: 850;
-    }
   </style>
 </head>
 
@@ -592,7 +553,7 @@
       <div class="dateText" id="dateBig">—</div>
     </header>
 
-    <!-- ===== HOY ===== -->
+    <!-- HOY -->
     <section id="viewToday">
       <section class="panel">
         <div class="panelHead">
@@ -635,7 +596,7 @@
       </section>
     </section>
 
-    <!-- ===== CALENDARIO ===== -->
+    <!-- CALENDARIO -->
     <section id="viewCalendar" style="display:none;">
       <section class="panel" style="padding-bottom:12px">
         <div class="calHead">
@@ -662,12 +623,6 @@
     </div>
   </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast">
-    <span id="toastText">—</span>
-    <button class="btn" id="toastUndo" type="button">Deshacer</button>
-  </div>
-
   <!-- Sheet detalle día -->
   <div class="sheetBack" id="sheetBack"></div>
   <div class="sheet" id="sheet">
@@ -679,7 +634,6 @@
   </div>
 
   <script>
-    // ===== Config =====
     const PRACTICES = [
       { key: "coraza", label: "Coraza" },
       { key: "eucaristia", label: "Eucaristía" },
@@ -693,7 +647,7 @@
     const STORAGE_KEY = "cuida_el_orden_final_singlefile_v3";
     const CUT_HOUR = 2, CUT_MIN = 30;
 
-    // ===== DOM =====
+    // DOM
     const elDateBig = document.getElementById("dateBig");
 
     const tabToday = document.getElementById("tabToday");
@@ -718,10 +672,6 @@
 
     const resetBtn = document.getElementById("resetBtn");
 
-    const toast = document.getElementById("toast");
-    const toastText = document.getElementById("toastText");
-    const toastUndo = document.getElementById("toastUndo");
-
     const calTitle = document.getElementById("calTitle");
     const calPrev = document.getElementById("calPrev");
     const calNext = document.getElementById("calNext");
@@ -733,7 +683,7 @@
     const sheetBody = document.getElementById("sheetBody");
     const sheetClose = document.getElementById("sheetClose");
 
-    // ===== Utils =====
+    // Utils
     const pad2 = (n) => String(n).padStart(2, "0");
     const toISODate = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
     const toMidday = (d) => { const x = new Date(d); x.setHours(12,0,0,0); return x; };
@@ -762,13 +712,9 @@
       return (js + 6) % 7;
     }
 
-    // ===== Storage =====
+    // Storage
     function defaultState(){
-      return {
-        days: {},
-        confessions: {},
-        lastConfessionISO: null
-      };
+      return { days: {}, confessions: {}, lastConfessionISO: null };
     }
 
     function loadState(){
@@ -799,28 +745,7 @@
       return state.days[iso];
     }
 
-    // ===== Toast (con deshacer) =====
-    let toastTimer = null;
-    let undoFn = null;
-
-    function showToast(msg, onUndo){
-      toastText.textContent = msg;
-      undoFn = onUndo || null;
-      toast.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-        undoFn = null;
-      }, 6500);
-    }
-
-    toastUndo.addEventListener("click", () => {
-      if (undoFn) undoFn();
-      toast.classList.remove("show");
-      undoFn = null;
-    });
-
-    // ===== Tabs =====
+    // Tabs
     function setTab(which){
       const isToday = which === "today";
       tabToday.classList.toggle("active", isToday);
@@ -832,7 +757,7 @@
     tabToday.addEventListener("click", ()=>setTab("today"));
     tabCalendar.addEventListener("click", ()=>setTab("calendar"));
 
-    // ===== Active day =====
+    // Active day
     let activeDate = practiceDayFor(new Date());
 
     function setActiveDate(d){
@@ -840,7 +765,7 @@
       render();
     }
 
-    // ===== Calendar month =====
+    // Calendar month
     let calMonth = new Date(activeDate);
     calMonth.setDate(1);
     calMonth = toMidday(calMonth);
@@ -861,7 +786,7 @@
       renderCalendar();
     });
 
-    // ===== Rendering =====
+    // Rendering
     function renderHeader(){
       elDateBig.textContent = fmtHeaderDate(activeDate);
 
@@ -875,20 +800,11 @@
 
     function togglePractice(iso, key){
       const day = ensureDay(iso);
-      const prev = !!day.checks[key];
       day.checks[key] = !day.checks[key];
       day.updatedAt = new Date().toISOString();
       saveState();
       renderToday();
       if (viewCalendar.style.display !== "none") renderCalendar();
-
-      // mensaje neutro (sin "marcar/desmarcar")
-      showToast("Actualizado.", () => {
-        day.checks[key] = prev;
-        saveState();
-        renderToday();
-        if (viewCalendar.style.display !== "none") renderCalendar();
-      });
     }
 
     function renderToday(){
@@ -909,7 +825,6 @@
           <div class="badge">${done ? "Hecho" : "Pendiente"}</div>
         `;
 
-        // SOLO el recuadro marca/desmarca
         const btn = li.querySelector(".markBtn");
         btn.addEventListener("click", (e) => {
           e.preventDefault();
@@ -1003,42 +918,27 @@
       if (viewCalendar.style.display !== "none") renderCalendar();
     }
 
-    // ===== Actions: Mortificación =====
+    // Actions
     mortPlus.addEventListener("click", () => {
       const iso = toISODate(activeDate);
       const day = ensureDay(iso);
-      const prev = day.mort;
       day.mort += 1;
       day.updatedAt = new Date().toISOString();
       saveState();
       renderToday();
       if (viewCalendar.style.display !== "none") renderCalendar();
-      showToast("Mortificación +1", () => {
-        day.mort = prev;
-        saveState();
-        renderToday();
-        if (viewCalendar.style.display !== "none") renderCalendar();
-      });
     });
 
     mortMinus.addEventListener("click", () => {
       const iso = toISODate(activeDate);
       const day = ensureDay(iso);
-      const prev = day.mort;
       day.mort = Math.max(0, day.mort - 1);
       day.updatedAt = new Date().toISOString();
       saveState();
       renderToday();
       if (viewCalendar.style.display !== "none") renderCalendar();
-      showToast("Mortificación -1", () => {
-        day.mort = prev;
-        saveState();
-        renderToday();
-        if (viewCalendar.style.display !== "none") renderCalendar();
-      });
     });
 
-    // ===== Actions: Navegar días =====
     goYesterday.addEventListener("click", () => {
       const d = new Date(activeDate);
       d.setDate(d.getDate() - 1);
@@ -1049,7 +949,6 @@
       setActiveDate(practiceDayFor(new Date()));
     });
 
-    // ===== Actions: Caída (SIN toast) =====
     fallBtn.addEventListener("click", () => {
       const iso = toISODate(activeDate);
       const day = ensureDay(iso);
@@ -1059,7 +958,6 @@
       render();
     });
 
-    // ===== Actions: Confesión (silencioso) =====
     confToggle.addEventListener("click", () => {
       const iso = toISODate(activeDate);
       const prev = !!state.confessions[iso];
@@ -1075,7 +973,6 @@
       render();
     });
 
-    // ===== Reset =====
     resetBtn.addEventListener("click", () => {
       if (!confirm("¿Reiniciar? Esto borra el historial del dispositivo.")) return;
       localStorage.removeItem(STORAGE_KEY);
@@ -1083,10 +980,10 @@
       setActiveDate(practiceDayFor(new Date()));
       calMonth = new Date(activeDate); calMonth.setDate(1); calMonth = toMidday(calMonth);
       setTab("today");
-      showToast("Datos reiniciados.", null);
+      render();
     });
 
-    // ===== Sheet (detalle día) =====
+    // Sheet (detalle día)
     function openDaySheet(iso){
       const d = new Date(iso + "T12:00:00");
       sheetTitle.textContent = fmtHeaderDate(d);
@@ -1169,7 +1066,7 @@
     sheetBack.addEventListener("click", closeSheet);
     sheetClose.addEventListener("click", closeSheet);
 
-    // ===== Init =====
+    // Init
     render();
     setTab("today");
   </script>
