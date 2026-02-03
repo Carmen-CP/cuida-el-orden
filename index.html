@@ -277,6 +277,17 @@
       text-overflow:ellipsis;
     }
 
+    /* ✅ NUEVO: segunda línea para "Hace X días" (solo estética) */
+    .since{
+      margin-top: 2px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: initial;
+    }
+
     .stepper{
       display:flex;
       align-items:center;
@@ -736,7 +747,6 @@
       return (js + 6) % 7;
     }
 
-    // (ARREGLO 3) Días entre fechas ISO (mediodía para evitar problemas de hora)
     function daysBetweenISO(fromISO, toISO){
       const a = new Date(fromISO + "T12:00:00");
       const b = new Date(toISO + "T12:00:00");
@@ -764,14 +774,13 @@
     let state = loadState();
     function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-    // (ARREGLO 1) Recalcular última confesión real
     function recomputeLastConfessionISO(){
       const keys = Object.keys(state.confessions || {}).filter(k => state.confessions[k]);
       if (keys.length === 0) {
         state.lastConfessionISO = null;
         return;
       }
-      keys.sort(); // ISO YYYY-MM-DD
+      keys.sort();
       state.lastConfessionISO = keys[keys.length - 1];
     }
 
@@ -886,7 +895,7 @@
       mortValue.textContent = String(day.mort);
       fallBtn.textContent = day.fall ? "Caída (quitar)" : "Caída";
 
-      // (ARREGLO 3) "Última: fecha · Hace X días"
+      // ✅ ÚNICO CAMBIO: mostrar "Hace X días" debajo (sin cortar)
       const lastISO = state.lastConfessionISO;
       if (!lastISO) {
         confLast.textContent = "Última: —";
@@ -900,7 +909,10 @@
         else if (diff === 1) since = "Ayer";
         else if (diff > 1) since = `Hace ${diff} días`;
 
-        confLast.textContent = `Última: ${lastText}${since ? " · " + since : ""}`;
+        confLast.innerHTML = `
+          Última: ${lastText}
+          ${since ? `<div class="since">${since}</div>` : ""}
+        `;
       }
 
       const isConfToday = !!state.confessions[iso];
@@ -1023,7 +1035,6 @@
       render();
     });
 
-    // (ARREGLO 1) También arreglado aquí (botón principal)
     confToggle.addEventListener("click", () => {
       const iso = toISODate(activeDate);
       const prev = !!state.confessions[iso];
@@ -1096,7 +1107,6 @@
         setTab("today");
       };
 
-      // (ARREGLO 1) También arreglado aquí
       document.getElementById("sheetToggleConf").onclick = () => {
         if (state.confessions[iso]) {
           delete state.confessions[iso];
